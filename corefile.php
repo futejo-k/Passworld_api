@@ -18,19 +18,20 @@ function pwdHash($pwd) {
 }
 
 function pwdEncrypt($pwd) {
-    $cipher = "aes-256-cbc";
-    $encryption_key = openssl_random_pseudo_bytes(32);
-    $iv_size = openssl_cipher_iv_length($cipher);
-    $iv = openssl_random_pseudo_bytes($iv_size);
-    return openssl_encrypt($pwd, $cipher, $encryption_key, 0, $iv);
+    $iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length('aes-256-cbc'));
+    $ciphertext = openssl_encrypt($pwd, 'aes-256-cbc', "abc123", OPENSSL_RAW_DATA, $iv);
+    $result = base64_encode($iv . $ciphertext);
+
+    return $result;
 }
 
 function pwdDecrypt($pwd) {
-    $cipher = "aes-256-cbc";
-    $encryption_key = openssl_random_pseudo_bytes(32);
-    $iv_size = openssl_cipher_iv_length($cipher);
-    $iv = openssl_random_pseudo_bytes($iv_size);
-    echo(openssl_decrypt($pwd, $cipher, $encryption_key, 0, $iv));
+    $data = base64_decode($pwd);
+    $iv = substr($data, 0, openssl_cipher_iv_length('aes-256-cbc'));
+    $ciphertext = substr($data, openssl_cipher_iv_length('aes-256-cbc'));
+    $plaintext = openssl_decrypt($ciphertext, 'aes-256-cbc', "abc123", OPENSSL_RAW_DATA, $iv);
+
+    return $plaintext;
 }
 
 function uidGenerate($length = 32) {
@@ -87,4 +88,9 @@ function deleteUserTable($uid) {
 function pwdLog($uid, $un, $pwd, $web, $type) {
     $pid = pidGenerate();
     database("passwords")->query("INSERT INTO `$uid`(`pid`, `username`, `password`, `web`, `type`) VALUES ('$pid','$un','$pwd','$web','$type')");
+}
+
+function getPwdInfo($uid, $web) {
+    $result = database("passwords")->query("SELECT * FROM `$uid` WHERE `web` = '$web' LIMIT 1");
+    return mysqli_fetch_array($result);
 }
