@@ -1,9 +1,12 @@
 <?php
 include "corefile.php";
 
-//$uid = $_GET['uid'];
+//registerUser("", "", "", "", "");
 
-$pwd = pwdEncrypt("hhhhh");
-//$dec = pwdDecrypt($pwd);
+//$uid = "";
 
+//printJSON(getUserInfo($uid));
 
+//pwdLog($uid, "", "", "", "");
+
+//printJSON(getPwdInfo($uid, ""));
